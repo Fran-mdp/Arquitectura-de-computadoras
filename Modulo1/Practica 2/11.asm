@@ -1,0 +1,42 @@
+EOI EQU 20H 
+IMR EQU 21H 
+INT0 EQU 24H
+N_F10 EQU 10
+ORG 1000H
+LETRAS DB "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+FIN DB ?
+
+ORG 40 
+IP_F10 DW  RUT_F10    
+
+    ORG 2000H  
+    CLI  
+    MOV AL, 0FEH  
+    OUT IMR, AL ; PIC: registro IMR  
+    MOV AL, N_F10  
+    OUT INT0, AL ; PIC: registro INT0  
+    MOV DX, 0  
+    STI
+    MOV BX, OFFSET LETRAS
+    MOV AL, 1
+    MOV AH, OFFSET FIN - OFFSET LETRAS
+LETRAS_LOOP: DEC AH
+    INC BX
+    CMP AH, AL
+    JNZ LETRAS_LOOP
+MOV BX, OFFSET LETRAS
+MOV AL, 1
+MOV AH, OFFSET FIN - OFFSET LETRAS
+JMP LETRAS_LOOP
+
+        ORG 3000H 
+RUT_F10:PUSH AX
+        PUSH BX
+        MOV AL, 1
+        INT 7
+        MOV AL, EOI  
+        OUT EOI, AL  ; PIC: registro EOI  
+        POP BX
+        POP AX  
+        IRET    
+        END
